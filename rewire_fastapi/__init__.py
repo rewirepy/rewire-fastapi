@@ -122,7 +122,7 @@ async def run_hypercorn(app: FastAPI, cfg: Config.Value):
     from hypercorn.config import Config
 
     lib = sniffio.current_async_library()
-    config = Config().from_mapping(cfg.uvicorn.model_dump())
+    config = Config().from_mapping(cfg.hypercorn.model_dump())
 
     if lib == "asyncio":
         from hypercorn.asyncio import serve
