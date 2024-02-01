@@ -1,0 +1,29 @@
+[build-system]
+requires      = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rewire_fastapi"
+version = "0.0.1"
+description = "Fastapi integration for rewire"
+readme = "README.md"
+authors = [{ name = "Ivan Vozhakov", email = "gou177@bk.ru" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = []
+dependencies = [
+    "rewire",
+    "fastapi",
+]
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+uvicorn = ["uvicorn"]
+hypercorn = ["hypercorn"]
+
+[project.urls]
+Homepage = "https://github.com/rewirepy/rewire-fastapi"
