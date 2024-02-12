@@ -95,7 +95,7 @@ async def run_uvicorn(app: FastAPI, cfg: Config.Value):
     logger.info(f"Starting fastapi with uvicorn at {cfg.endpoint}")
     config = uvicorn.config.Config(
         app,
-        **cfg.uvicorn.model_dump(exclude_defaults=True, exclude={"enabled"}),
+        **cfg.uvicorn.model_dump(exclude={"enabled"}),
     )
     server = uvicorn.Server(config=config)
 

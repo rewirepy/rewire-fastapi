@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rewire_fastapi"
-version = "0.0.4"
+version = "0.0.5"
 description = "Fastapi integration for rewire"
 readme = "README.md"
 authors = [{ name = "Ivan Vozhakov", email = "gou177@bk.ru" }]
