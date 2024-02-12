@@ -114,7 +114,7 @@ async def run_uvicorn(app: FastAPI, cfg: Config.Value):
         async def stop():
             server.should_exit = True
 
-    return server.serve()
+    return await server.serve()
 
 
 async def run_hypercorn(app: FastAPI, cfg: Config.Value):
