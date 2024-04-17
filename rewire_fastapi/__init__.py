@@ -73,12 +73,12 @@ class Config(ConfigDependency):
     hypercorn: HypercornConfig = HypercornConfig()
     patch: PatchConfig = PatchConfig()
     middleware: MiddlewareConfig = MiddlewareConfig()
-    _endpoint: Annotated[Optional[str], Field(alias="endpoint")] = None
+    endpoint_: Annotated[Optional[str], Field(alias="endpoint")] = None
 
     @property
     def endpoint(self):
-        if self._endpoint is not None:
-            return self._endpoint
+        if self.endpoint_ is not None:
+            return self.endpoint_
         host = self.uvicorn.host
         if host == "0.0.0.0":
             host = "localhost"
