@@ -29,7 +29,7 @@ class DependableWrapper(Generic[P, R, T], params.Depends):
         ...
 
     @property
-    def Result(self):
+    def Result(self) -> Type[T]:
         type_ = self._return_type()
         return Annotated[type_, Depends(self.dependency)]
 
