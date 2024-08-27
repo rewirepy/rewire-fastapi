@@ -2,9 +2,12 @@
 requires      = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.package-data]
+"rewire" = ["py.typed"]
+
 [project]
 name = "rewire_fastapi"
-version = "0.0.7"
+version = "0.0.8"
 description = "Fastapi integration for rewire"
 readme = "README.md"
 authors = [{ name = "Ivan Vozhakov", email = "gou177@bk.ru" }]
