@@ -25,13 +25,12 @@ class DependableWrapper(Generic[P, R, T], params.Depends):
         update_wrapper(self, callable)
         super().__init__(callable)
 
-    def _return_type(self) -> Type[T]:
-        ...
+    def _return_type(self) -> Type[T]: ...
 
     @property
     def Result(self) -> Type[T]:
         type_ = self._return_type()
-        return Annotated[type_, Depends(self.dependency)]
+        return Annotated[type_, Depends(self.dependency)]  # type: ignore
 
     def __call__(self, *args: P.args, **kwds: P.kwargs) -> R:
         assert self.dependency
@@ -41,29 +40,25 @@ class DependableWrapper(Generic[P, R, T], params.Depends):
 @overload
 def Dependable(  # /NOSONAR
     fn: Callable[P, Awaitable[R]],
-) -> DependableWrapper[P, Awaitable[R], R]:
-    ...
+) -> DependableWrapper[P, Awaitable[R], R]: ...
 
 
 @overload
 def Dependable(  # /NOSONAR
     fn: Callable[P, AsyncGenerator[R, None]],
-) -> DependableWrapper[P, AsyncGenerator[R, None], R]:
-    ...
+) -> DependableWrapper[P, AsyncGenerator[R, None], R]: ...
 
 
 @overload
 def Dependable(  # /NOSONAR
     fn: Callable[P, Awaitable[R]],
-) -> DependableWrapper[P, Awaitable[R], R]:
-    ...
+) -> DependableWrapper[P, Awaitable[R], R]: ...
 
 
 @overload
 def Dependable(  # /NOSONAR
     fn: Callable[P, AsyncIterable[R]],
-) -> DependableWrapper[P, AsyncIterable[R], R]:
-    ...
+) -> DependableWrapper[P, AsyncIterable[R], R]: ...
 
 
 @overload

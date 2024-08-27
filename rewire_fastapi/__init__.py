@@ -6,13 +6,13 @@ from typing_extensions import Annotated
 from venv import logger
 
 from rewire import ConfigDependency, LifecycleModule, simple_plugin
-from starlette.routing import compile_path
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from pydantic import BaseModel, Field
 import fastapi.openapi.docs
 import fastapi.applications
 from fastapi.middleware.cors import CORSMiddleware
+from rewire_fastapi.dependable import Dependable
 
 plugin = simple_plugin()
 
