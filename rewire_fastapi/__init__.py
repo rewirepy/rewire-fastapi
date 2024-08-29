@@ -1,4 +1,5 @@
 from contextlib import suppress
+from copy import copy
 from enum import Enum
 from functools import wraps
 from typing import (
@@ -231,13 +232,17 @@ def patch_dependant(dependant: Dependant, config: PatchConfig):
             path=dependant.path,
             name=previous.name,
             use_cache=previous.use_cache,
-            security_scopes=previous.security_scopes
+            security_scopes=previous.security_scopes,
         )
-    dependant.dependencies = [
-        patch_dependant(x, config) for x in dependant.dependencies
-    ]
-    return dependant
+    new_dependencies = [patch_dependant(x, config) for x in dependant.dependencies]
+    should_clone = any(
+        old is not new for old, new in zip(dependant.dependencies, new_dependencies)
+    )
+    if should_clone:
+        dependant = copy(dependant)
+        dependant.dependencies = new_dependencies
 
+    return dependant
 
 @plugin.setup(stage=100)
 def patch_router_dependency_overrides(app: FastAPI, config: Config.Value):
