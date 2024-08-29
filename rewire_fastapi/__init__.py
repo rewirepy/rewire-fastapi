@@ -25,9 +25,22 @@ import fastapi.openapi.docs
 import fastapi.applications
 from fastapi.middleware.cors import CORSMiddleware
 from rewire_fastapi.dependable import Dependable
+from rewire_fastapi.patch import Patch
 from fastapi.dependencies.utils import get_dependant
 
 plugin = simple_plugin()
+
+__all__ = [
+    "AppConfig",
+    "UvicornConfig",
+    "PatchConfig",
+    "RouteConfig",
+    "CORSConfig",
+    "MiddlewareConfig",
+    "Config",
+    "Dependable",
+    "Patch",
+]
 
 
 class AppConfig(BaseModel, extra="allow"):
@@ -243,6 +256,7 @@ def patch_dependant(dependant: Dependant, config: PatchConfig):
         dependant.dependencies = new_dependencies
 
     return dependant
+
 
 @plugin.setup(stage=100)
 def patch_router_dependency_overrides(app: FastAPI, config: Config.Value):
