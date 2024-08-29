@@ -1,18 +1,30 @@
 from contextlib import suppress
 from enum import Enum
 from functools import wraps
-from typing import Any, Dict, List, Literal, Optional, Sequence, Union, cast
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Sequence,
+    Union,
+    cast,
+)
 from typing_extensions import Annotated
 from venv import logger
 
+from fastapi.dependencies.models import Dependant
 from rewire import ConfigDependency, LifecycleModule, simple_plugin
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.routing import APIRoute
 from pydantic import BaseModel, Field
 import fastapi.openapi.docs
 import fastapi.applications
 from fastapi.middleware.cors import CORSMiddleware
 from rewire_fastapi.dependable import Dependable
+from fastapi.dependencies.utils import get_parameterless_sub_dependant
 
 plugin = simple_plugin()
 
@@ -48,6 +60,8 @@ class RouteConfig(BaseModel):
 class PatchConfig(BaseModel):
     swagger_hierarchical_tags: bool = False
     tag_prefixes: bool = True
+    dependency_overrides: dict[Callable, Callable] = {}
+    """Will be reflected in swagger"""
 
 
 class CORSConfig(BaseModel):
@@ -188,8 +202,8 @@ def add_hierarchial_tags(config: Config.Value):
     fastapi.applications.get_swagger_ui_html = get_swagger_ui_html_patched  # type: ignore
 
 
-@plugin.setup()
-def patch_router(app: FastAPI, config: Config.Value):
+@plugin.setup(stage=100)
+def patch_router_tags(app: FastAPI, config: Config.Value):
     if not config.patch.tag_prefixes:
         return
 
@@ -206,3 +220,28 @@ def patch_router(app: FastAPI, config: Config.Value):
     if app.openapi_tags and config.routes.tag_prefix:
         for tag in app.openapi_tags:
             tag["name"] = f"{config.routes.tag_prefix}{tag['name']}".removesuffix(":")
+
+
+def patch_dependant(dependant: Dependant, config: PatchConfig):
+    if dependant.call in config.dependency_overrides:
+        assert dependant.path is not None
+        dependant = get_parameterless_sub_dependant(
+            depends=Depends(config.dependency_overrides[dependant.call]),
+            path=dependant.path,
+        )
+    dependant.dependencies = [
+        patch_dependant(x, config) for x in dependant.dependencies
+    ]
+    return dependant
+
+
+@plugin.setup(stage=100)
+def patch_router_dependency_overrides(app: FastAPI, config: Config.Value):
+    if not config.patch.dependency_overrides:
+        return
+    app.dependency_overrides.update(config.patch.dependency_overrides)
+
+    for route in app.router.routes:
+        if not isinstance(route, APIRoute):
+            continue
+        route.dependant = patch_dependant(route.dependant, config.patch)
