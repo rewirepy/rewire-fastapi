@@ -17,14 +17,14 @@ from venv import logger
 
 from fastapi.dependencies.models import Dependant
 from rewire import ConfigDependency, LifecycleModule, simple_plugin
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from pydantic import BaseModel, Field
 import fastapi.openapi.docs
 import fastapi.applications
 from fastapi.middleware.cors import CORSMiddleware
 from rewire_fastapi.dependable import Dependable
-from fastapi.dependencies.utils import get_parameterless_sub_dependant
+from fastapi.dependencies.utils import get_dependant
 
 plugin = simple_plugin()
 
@@ -225,9 +225,13 @@ def patch_router_tags(app: FastAPI, config: Config.Value):
 def patch_dependant(dependant: Dependant, config: PatchConfig):
     if dependant.call in config.dependency_overrides:
         assert dependant.path is not None
-        dependant = get_parameterless_sub_dependant(
-            depends=Depends(config.dependency_overrides[dependant.call]),
+        previous = dependant
+        dependant = get_dependant(
+            call=config.dependency_overrides[dependant.call],
             path=dependant.path,
+            name=previous.name,
+            use_cache=previous.use_cache,
+            security_scopes=previous.security_scopes
         )
     dependant.dependencies = [
         patch_dependant(x, config) for x in dependant.dependencies
